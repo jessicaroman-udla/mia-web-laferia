@@ -1,0 +1,147 @@
+{% extends 'base/base.html' %}
+
+{% block page_title %}Transferencias{% endblock %}
+{% block breadcrumb %}Transferencias{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="small-box text-bg-primary">
+            <div class="inner">
+                <h3>{{ page_obj.paginator.count }}</h3>
+                <p>Movimientos encontrados</p>
+            </div>
+            <i class="bi bi-arrow-left-right small-box-icon"></i>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="small-box text-bg-success">
+            <div class="inner">
+                <h3>{{ total_quantity|floatformat:0 }}</h3>
+                <p>Unidades transferidas</p>
+            </div>
+            <i class="bi bi-box-seam small-box-icon"></i>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h3 class="card-title mb-0">
+                <i class="bi bi-arrow-left-right me-2"></i>Transferencias entre almacenes
+            </h3>
+            <span class="badge text-bg-primary">{{ page_obj.paginator.count }} registros</span>
+        </div>
+    </div>
+
+    <div class="card-body border-bottom">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-lg-4 col-md-6">
+                <label for="search" class="form-label">Buscar producto</label>
+                <input type="text" id="search" name="search" class="form-control"
+                       placeholder="Código o nombre..." value="{{ search }}">
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <label for="origen" class="form-label">Almacén de origen</label>
+                <select id="origen" name="origen" class="form-select">
+                    <option value="">Todos</option>
+                    {% for warehouse in warehouses %}
+                        <option value="{{ warehouse }}"{% if origen == warehouse %} selected{% endif %}>{{ warehouse }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <label for="destino" class="form-label">Almacén de destino</label>
+                <select id="destino" name="destino" class="form-select">
+                    <option value="">Todos</option>
+                    {% for warehouse in warehouses %}
+                        <option value="{{ warehouse }}"{% if destino == warehouse %} selected{% endif %}>{{ warehouse }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                    <a href="{% url 'transfers' %}" class="btn btn-outline-secondary" title="Limpiar filtros">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th class="text-center">Origen</th>
+                        <th class="text-center">Destino</th>
+                        <th class="text-end">Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transfer in page_obj %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'product_detail' transfer.product_code %}" class="fw-semibold text-decoration-none">
+                                    {{ transfer.product_code }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if transfer.display_name == 'Nombre no disponible' %}
+                                    <span class="text-muted">{{ transfer.display_name }}</span>
+                                {% else %}
+                                    {{ transfer.display_name }}
+                                {% endif %}
+                            </td>
+                            <td class="text-center"><span class="badge text-bg-secondary">{{ transfer.origen }}</span></td>
+                            <td class="text-center"><span class="badge text-bg-primary">{{ transfer.destino }}</span></td>
+                            <td class="text-end"><strong>{{ transfer.cantidad|floatformat:0 }}</strong></td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="bi bi-arrow-left-right d-block mb-2" style="font-size: 40px;"></i>
+                                No se encontraron transferencias.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+        <div class="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <small class="text-muted">
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }} · {{ page_obj.paginator.count }} movimientos
+            </small>
+            <nav aria-label="Paginación de transferencias">
+                <ul class="pagination mb-0">
+                    <li class="page-item{% if not page_obj.has_previous %} disabled{% endif %}">
+                        {% if page_obj.has_previous %}
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search|urlencode }}&origen={{ origen|urlencode }}&destino={{ destino|urlencode }}">Anterior</a>
+                        {% else %}
+                            <span class="page-link">Anterior</span>
+                        {% endif %}
+                    </li>
+                    <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                    <li class="page-item{% if not page_obj.has_next %} disabled{% endif %}">
+                        {% if page_obj.has_next %}
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search|urlencode }}&origen={{ origen|urlencode }}&destino={{ destino|urlencode }}">Siguiente</a>
+                        {% else %}
+                            <span class="page-link">Siguiente</span>
+                        {% endif %}
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

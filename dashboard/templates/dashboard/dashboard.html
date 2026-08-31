@@ -1,0 +1,709 @@
+{% extends 'base/base.html' %}
+
+{% block page_title %}
+Dashboard
+{% endblock %}
+
+{% block breadcrumb %}
+Dashboard
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="row">
+
+    <!-- Pronósticos -->
+    <div class="col-lg-3 col-6">
+
+        <div class="small-box text-bg-primary">
+
+            <div class="inner">
+
+                <h3>
+                    {{ total_forecasts }}
+                </h3>
+
+                <p>
+                    Productos pronosticados
+                </p>
+
+            </div>
+
+            <i
+                class="bi bi-graph-up-arrow small-box-icon"
+                style="font-size: 70px;"
+            ></i>
+
+            <a href="{% url 'forecasts' %}" class="small-box-footer link-light link-underline-opacity-0">
+                Ver pronósticos <i class="bi bi-arrow-right-circle"></i>
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Órdenes -->
+    <div class="col-lg-3 col-6">
+
+        <div class="small-box text-bg-success">
+
+            <div class="inner">
+
+                <h3>
+                    {{ total_orders }}
+                </h3>
+
+                <p>
+                    Órdenes de compra
+                </p>
+
+            </div>
+
+            <i
+                class="bi bi-cart-check small-box-icon"
+                style="font-size: 70px;"
+            ></i>
+
+            <a href="{% url 'orders' %}" class="small-box-footer link-light link-underline-opacity-0">
+                Ver órdenes <i class="bi bi-arrow-right-circle"></i>
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Transferencias -->
+    <div class="col-lg-3 col-6">
+
+        <div class="small-box text-bg-warning">
+
+            <div class="inner">
+
+                <h3>
+                    {{ total_transfers }}
+                </h3>
+
+                <p>
+                    Transferencias
+                </p>
+
+            </div>
+
+            <i
+                class="bi bi-arrow-left-right small-box-icon"
+                style="font-size: 70px;"
+            ></i>
+
+            <a href="{% url 'transfers' %}" class="small-box-footer link-dark link-underline-opacity-0">
+                Ver transferencias <i class="bi bi-arrow-right-circle"></i>
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Almacenes -->
+    <div class="col-lg-3 col-6">
+
+        <div class="small-box text-bg-danger">
+
+            <div class="inner">
+
+                <h3>
+                    {{ total_warehouses }}
+                </h3>
+
+                <p>
+                    Almacenes
+                </p>
+
+            </div>
+
+            <i
+                class="bi bi-building small-box-icon"
+                style="font-size: 70px;"
+            ></i>
+
+            <a href="{% url 'warehouses' %}" class="small-box-footer link-light link-underline-opacity-0">
+                Ver almacenes <i class="bi bi-arrow-right-circle"></i>
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- KPIs SECUNDARIOS -->
+<!-- ===================================================== -->
+
+<div class="row">
+
+    <div class="col-md-6">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <div class="d-flex align-items-center">
+
+                    <div class="me-3">
+
+                        <i
+                            class="bi bi-cash-stack text-success"
+                            style="font-size: 42px;"
+                        ></i>
+
+                    </div>
+
+                    <div>
+
+                        <span class="text-muted">
+                            Valor total de órdenes
+                        </span>
+
+                        <h3 class="mb-0">
+
+                            $
+                            {{ total_order_value|floatformat:2 }}
+
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-6">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <div class="d-flex align-items-center">
+
+                    <div class="me-3">
+
+                        <i
+                            class="bi bi-box-seam text-primary"
+                            style="font-size: 42px;"
+                        ></i>
+
+                    </div>
+
+                    <div>
+
+                        <span class="text-muted">
+                            Demanda total pronosticada
+                        </span>
+
+                        <h3 class="mb-0">
+
+                            {{ total_forecast_demand|floatformat:0 }}
+
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<hr>
+
+<div class="row">
+
+    <!-- Demanda semanal -->
+    <div class="col-lg-8">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3 class="card-title">
+
+                    <i class="bi bi-graph-up me-2"></i>
+
+                    Demanda pronosticada semanal
+
+                </h3>
+
+            </div>
+
+            <div class="card-body">
+
+                {% if weekly_totals %}
+                    <div style="height: 350px;">
+                        <canvas id="forecastChart"></canvas>
+                    </div>
+                {% else %}
+                    <div class="d-flex align-items-center justify-content-center text-muted" style="height: 350px;">
+                        No hay datos de demanda semanal disponibles.
+                    </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Categorías -->
+    <div class="col-lg-4">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3 class="card-title">
+
+                    <i class="bi bi-pie-chart me-2"></i>
+
+                    Productos por categoría
+
+                </h3>
+
+            </div>
+
+            <div class="card-body">
+
+                {% if category_values %}
+                    <div style="height: 350px;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                {% else %}
+                    <div class="d-flex align-items-center justify-content-center text-muted" style="height: 350px;">
+                        No hay categorías disponibles.
+                    </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<hr>
+
+<div class="row">
+
+    <!-- Transferencias -->
+    <div class="col-lg-7">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3 class="card-title">
+
+                    <i class="bi bi-arrow-left-right me-2"></i>
+
+                    Últimas transferencias
+
+                </h3>
+
+            </div>
+
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover mb-0">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Producto
+                                </th>
+
+                                <th>
+                                    Origen
+                                </th>
+
+                                <th>
+                                    Destino
+                                </th>
+
+                                <th class="text-end">
+                                    Cantidad
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for transfer in recent_transfers %}
+
+                                <tr>
+
+                                    <td>
+                                        <a href="{% url 'product_detail' transfer.product_code %}" class="fw-semibold text-decoration-none">
+                                            {{ transfer.display_name }}
+                                        </a>
+                                        <br><small class="text-muted">{{ transfer.product_code }}</small>
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge text-bg-secondary">
+
+                                            {{ transfer.origen }}
+
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge text-bg-primary">
+
+                                            {{ transfer.destino }}
+
+                                        </span>
+
+                                    </td>
+
+                                    <td class="text-end">
+
+                                        <strong>
+
+                                            {{ transfer.cantidad|floatformat:0 }}
+
+                                        </strong>
+
+                                    </td>
+
+                                </tr>
+
+                            {% empty %}
+
+                                <tr>
+
+                                    <td
+                                        colspan="4"
+                                        class="text-center py-4"
+                                    >
+
+                                        No existen transferencias.
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Almacenes -->
+    <div class="col-lg-5">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3 class="card-title">
+
+                    <i class="bi bi-building me-2"></i>
+
+                    Almacenes con mayor valor de órdenes
+
+                </h3>
+
+            </div>
+
+            <div class="card-body">
+
+                {% for warehouse in warehouses %}
+
+                    <div
+                        class="d-flex justify-content-between align-items-center border-bottom py-3"
+                    >
+
+                        <div>
+
+                            <strong>
+
+                                {{ warehouse.almacen }}
+
+                            </strong>
+
+                            <br>
+
+                            <small class="text-muted">
+
+                                {{ warehouse.total_orders }}
+                                órdenes
+
+                            </small>
+
+                        </div>
+
+                        <div class="text-end">
+
+                            <strong>
+
+                                $
+                                {{ warehouse.total_value|floatformat:2 }}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <div class="text-center text-muted">
+
+                        No existen datos.
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- DATOS PARA JAVASCRIPT -->
+<!-- ===================================================== -->
+
+{{ weekly_labels|json_script:"weekly-labels" }}
+
+{{ weekly_totals|json_script:"weekly-values" }}
+
+{{ category_labels|json_script:"category-labels" }}
+
+{{ category_values|json_script:"category-values" }}
+
+
+<!-- Chart.js -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    // =====================================================
+    // DATOS
+    // =====================================================
+
+    const weeklyLabels = JSON.parse(
+        document.getElementById(
+            "weekly-labels"
+        ).textContent
+    );
+
+    const weeklyValues = JSON.parse(
+        document.getElementById(
+            "weekly-values"
+        ).textContent
+    );
+
+
+    const categoryLabels = JSON.parse(
+        document.getElementById(
+            "category-labels"
+        ).textContent
+    );
+
+    const categoryValues = JSON.parse(
+        document.getElementById(
+            "category-values"
+        ).textContent
+    );
+
+
+    // =====================================================
+    // GRÁFICO DE DEMANDA
+    // =====================================================
+
+    const forecastCanvas =
+        document.getElementById(
+            "forecastChart"
+        );
+
+
+    if (forecastCanvas && typeof Chart !== "undefined" && weeklyValues.length) {
+
+        new Chart(
+            forecastCanvas,
+            {
+                type: "line",
+
+                data: {
+
+                    labels: weeklyLabels,
+
+                    datasets: [
+
+                        {
+                            label:
+                                "Demanda pronosticada",
+
+                            data:
+                                weeklyValues,
+
+                            borderWidth: 3,
+
+                            borderColor: "#0d6efd",
+
+                            backgroundColor: "rgba(13, 110, 253, 0.15)",
+
+                            tension: 0.3,
+
+                            fill: false
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
+                        legend: {
+                            display: true
+                        }
+
+                    },
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true
+
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // =====================================================
+    // GRÁFICO POR CATEGORÍA
+    // =====================================================
+
+    const categoryCanvas =
+        document.getElementById(
+            "categoryChart"
+        );
+
+
+    if (categoryCanvas && typeof Chart !== "undefined" && categoryValues.length) {
+
+        new Chart(
+            categoryCanvas,
+            {
+                type: "doughnut",
+
+                data: {
+
+                    labels:
+                        categoryLabels,
+
+                    datasets: [
+
+                        {
+                            data:
+                                categoryValues,
+
+                            backgroundColor: [
+                                "#198754",
+                                "#ffc107",
+                                "#6c757d",
+                                "#0dcaf0",
+                                "#dc3545"
+                            ],
+
+                            borderWidth: 2
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
+                        legend: {
+
+                            position: "bottom"
+
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

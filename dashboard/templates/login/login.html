@@ -1,0 +1,291 @@
+{% load static %}
+
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+
+    <title>Web La Feria | Iniciar sesión</title>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    >
+
+    <meta name="color-scheme" content="light dark">
+
+    <!-- Evita cambio brusco entre modo claro y oscuro -->
+    <script>
+        (() => {
+            'use strict';
+
+            const root = document.documentElement;
+
+            if (root.getAttribute('data-lte-color-mode') === 'off') {
+                return;
+            }
+
+            const STORAGE_KEY = 'lte-theme';
+            let stored = null;
+
+            try {
+                stored = localStorage.getItem(STORAGE_KEY);
+            } catch {
+                // localStorage no disponible
+            }
+
+            const authored = root.getAttribute('data-bs-theme');
+
+            let resolved = 'light';
+
+            if (stored === 'dark' || stored === 'light') {
+                resolved = stored;
+            } else if (authored === 'dark' || authored === 'light') {
+                resolved = authored;
+            } else if (
+                globalThis.matchMedia('(prefers-color-scheme: dark)').matches
+            ) {
+                resolved = 'dark';
+            }
+
+            root.setAttribute('data-bs-theme', resolved);
+            root.style.colorScheme = resolved;
+
+            if (resolved !== authored) {
+                root.setAttribute('data-lte-theme-resolved', '');
+            }
+        })();
+    </script>
+
+    <!-- Fuente -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css"
+        crossorigin="anonymous"
+    >
+
+    <!-- OverlayScrollbars -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css"
+        crossorigin="anonymous"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+        crossorigin="anonymous"
+    >
+
+    <!-- AdminLTE -->
+    <link
+        rel="stylesheet"
+        href="{% static 'adminlte/css/adminlte.min.css' %}"
+    >
+</head>
+
+
+<body class="login-page bg-body-secondary">
+
+    <main class="login-box">
+
+        <!-- Logo -->
+       <div class="login-logo mb-4">
+    <div class="d-flex flex-column align-items-center justify-content-center">
+
+        <img
+            src="{% static 'adminlte/assets/img/LogoFeria.png' %}"
+            alt="Comercial La Feria"
+            class="mb-2"
+            style="
+                width: 85px;
+                height: 85px;
+                object-fit: contain;
+            "
+        >
+
+        <span
+            class="fw-semibold"
+            style="
+                font-size: 1.6rem;
+                color: var(--bs-body-color);
+            "
+        >
+            Comercial <b>La Feria</b>
+        </span>
+
+    </div>
+</div>
+        <!-- Card -->
+        <div class="card">
+
+            <div class="card-body login-card-body">
+
+                <p class="login-box-msg">
+                    Inicia sesión para acceder
+                </p>
+
+                <!-- Mensaje de error -->
+                {% if error %}
+                    <div
+                        class="alert alert-danger alert-dismissible fade show"
+                        role="alert"
+                    >
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+                        {{ error }}
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Cerrar"
+                        ></button>
+                    </div>
+                {% endif %}
+
+
+                <!-- FORMULARIO -->
+                <form
+                    method="post"
+                    action="{% url 'login' %}"
+                >
+
+                    {% csrf_token %}
+
+                    <!-- Usuario -->
+                    <label
+                        class="visually-hidden"
+                        for="username"
+                    >
+                        Usuario
+                    </label>
+
+                    <div class="input-group mb-3">
+
+                        <input
+                            id="username"
+                            name="username"
+                            type="text"
+                            class="form-control"
+                            placeholder="Usuario"
+                            autocomplete="username"
+                            required
+                            autofocus
+                        >
+
+                        <div class="input-group-text">
+                            <span class="bi bi-person-fill"></span>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Contraseña -->
+                    <label
+                        class="visually-hidden"
+                        for="password"
+                    >
+                        Contraseña
+                    </label>
+
+                    <div class="input-group mb-3">
+
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            class="form-control"
+                            placeholder="Contraseña"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <div class="input-group-text">
+                            <span class="bi bi-lock-fill"></span>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Opciones -->
+                    <div class="row align-items-center">
+
+                        <!-- Recordarme -->
+                        <div class="col-7">
+
+                            <div class="form-check">
+
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="remember"
+                                    id="remember"
+                                >
+
+                                <label
+                                    class="form-check-label"
+                                    for="remember"
+                                >
+                                    Recordarme
+                                </label>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Botón -->
+                        <div class="col-5">
+
+                            <div class="d-grid">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                >
+                                    <i class="bi bi-box-arrow-in-right me-1"></i>
+                                    Ingresar
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- OverlayScrollbars -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es6.min.js"
+        crossorigin="anonymous"
+    ></script>
+
+    <!-- Popper -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        crossorigin="anonymous"
+    ></script>
+
+    <!-- Bootstrap -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
+        crossorigin="anonymous"
+    ></script>
+
+    <!-- AdminLTE -->
+    <script
+        src="{% static 'adminlte/js/adminlte.min.js' %}"
+    ></script>
+
+</body>
+</html>

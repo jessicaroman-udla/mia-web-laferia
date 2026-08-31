@@ -1,0 +1,562 @@
+{% extends 'base/base.html' %}
+
+{% block page_title %}
+Productos pronosticados
+{% endblock %}
+
+{% block breadcrumb %}
+Productos pronosticados
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row">
+
+    <div class="col-12">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div
+                    class="d-flex justify-content-between align-items-center flex-wrap gap-2"
+                >
+
+                    <h3 class="card-title mb-0">
+
+                        <i class="bi bi-graph-up-arrow me-2"></i>
+
+                        Productos pronosticados
+
+                    </h3>
+
+                    <span class="badge text-bg-primary">
+
+                        {{ page_obj.paginator.count }} registros
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ===================================================== -->
+            <!-- FILTROS -->
+            <!-- ===================================================== -->
+
+            <div class="card-body border-bottom">
+
+                <form
+                    method="get"
+                    class="row g-3 align-items-end"
+                >
+
+                    <!-- Buscar -->
+                    <div class="col-lg-4 col-md-6">
+
+                        <label
+                            for="search"
+                            class="form-label"
+                        >
+                            Buscar producto
+                        </label>
+
+                        <input
+                            type="text"
+                            id="search"
+                            name="search"
+                            class="form-control"
+                            placeholder="Código o nombre..."
+                            value="{{ search }}"
+                        >
+
+                    </div>
+
+
+                    <!-- Categoría -->
+                    <div class="col-lg-2 col-md-6">
+
+                        <label
+                            for="categoria"
+                            class="form-label"
+                        >
+                            Categoría
+                        </label>
+
+                        <select
+                            id="categoria"
+                            name="categoria"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                Todas
+                            </option>
+
+                            {% for item in categories %}
+
+                                <option
+                                    value="{{ item }}"
+                                    {% if categoria == item %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ item }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Modelo -->
+                    <div class="col-lg-3 col-md-6">
+
+                        <label
+                            for="modelo"
+                            class="form-label"
+                        >
+                            Modelo ganador
+                        </label>
+
+                        <select
+                            id="modelo"
+                            name="modelo"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                Todos
+                            </option>
+
+                            {% for item in models %}
+
+                                <option
+                                    value="{{ item }}"
+                                    {% if modelo == item %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ item }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Botones -->
+                    <div class="col-lg-3 col-md-6">
+
+                        <div class="d-flex gap-2">
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary flex-fill"
+                            >
+
+                                <i class="bi bi-search me-1"></i>
+
+                                Buscar
+
+                            </button>
+
+                            <a
+                                href="{% url 'forecasts' %}"
+                                class="btn btn-outline-secondary"
+                            >
+
+                                <i class="bi bi-arrow-clockwise"></i>
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- ===================================================== -->
+            <!-- TABLA -->
+            <!-- ===================================================== -->
+
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table
+                        class="table table-hover table-striped align-middle mb-0"
+                    >
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Código
+                                </th>
+
+                                <th>
+                                    Producto
+                                </th>
+
+                                <th class="text-center">
+                                    Categoría
+                                </th>
+
+                                <th>
+                                    Modelo ganador
+                                </th>
+
+                                <th class="text-end">
+                                    Demanda total
+                                </th>
+
+                                <th class="text-center">
+                                    Semanas
+                                </th>
+
+                                <th class="text-end">
+                                    MAPE
+                                </th>
+
+                                <th class="text-center">
+                                    Estado
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for forecast in page_obj %}
+
+                                <tr>
+
+                                    <!-- Código -->
+                                    <td>
+
+                                        <a href="{% url 'product_detail' forecast.product_code %}" class="fw-semibold text-decoration-none">
+                                            {{ forecast.product_code }}
+                                        </a>
+
+                                    </td>
+
+
+                                    <!-- Producto -->
+                                    <td>
+
+                                        {{ forecast.product_name }}
+
+                                    </td>
+
+
+                                    <!-- Categoría -->
+                                    <td class="text-center">
+
+                                        {% if forecast.categoria == 'A' %}
+
+                                            <span class="badge text-bg-success">
+                                                A
+                                            </span>
+
+                                        {% elif forecast.categoria == 'B' %}
+
+                                            <span class="badge text-bg-warning">
+                                                B
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="badge text-bg-secondary">
+                                                {{ forecast.categoria }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- Modelo -->
+                                    <td>
+
+                                        <span class="badge text-bg-info">
+
+                                            {{ forecast.modelo_ganador }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- Demanda -->
+                                    <td class="text-end">
+
+                                        <strong>
+
+                                            {{ forecast.demanda_total|floatformat:0 }}
+
+                                        </strong>
+
+                                    </td>
+
+
+                                    <!-- Horizonte -->
+                                    <td class="text-center">
+
+                                        {{ forecast.horizon_weeks }}
+
+                                    </td>
+
+
+                                    <!-- MAPE -->
+                                    <td class="text-end">
+
+                                        {% if forecast.mape != None %}
+
+                                            {{ forecast.mape|floatformat:2 }}%
+
+                                        {% else %}
+
+                                            <span class="text-muted">
+                                                -
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- Estado -->
+                                    <td class="text-center">
+
+                                        {% if forecast.status == 'OK' %}
+
+                                            <span class="badge text-bg-success">
+
+                                                {{ forecast.status }}
+
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="badge text-bg-secondary">
+
+                                                {{ forecast.status }}
+
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                </tr>
+
+                            {% empty %}
+
+                                <tr>
+
+                                    <td
+                                        colspan="8"
+                                        class="text-center py-5"
+                                    >
+
+                                        <i
+                                            class="bi bi-search"
+                                            style="font-size: 40px;"
+                                        ></i>
+
+                                        <p class="mt-2 mb-0">
+
+                                            No se encontraron productos.
+
+                                        </p>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <!-- ===================================================== -->
+            <!-- PAGINACIÓN -->
+            <!-- ===================================================== -->
+
+            {% if page_obj.paginator.num_pages > 1 %}
+
+                <div class="card-footer">
+
+                    <div
+                        class="d-flex justify-content-between align-items-center flex-wrap gap-2"
+                    >
+
+                        <small class="text-muted">
+
+                            Página
+                            {{ page_obj.number }}
+                            de
+                            {{ page_obj.paginator.num_pages }}
+
+                        </small>
+
+
+                        <nav>
+
+                            <ul class="pagination mb-0">
+
+                                <!-- Primera -->
+                                {% if page_obj.has_previous %}
+
+                                    <li class="page-item">
+
+                                        <a
+                                            class="page-link"
+                                            href="?page=1&search={{ search|urlencode }}&categoria={{ categoria|urlencode }}&modelo={{ modelo|urlencode }}"
+                                        >
+                                            «
+                                        </a>
+
+                                    </li>
+
+                                {% else %}
+
+                                    <li class="page-item disabled">
+
+                                        <span class="page-link">
+                                            «
+                                        </span>
+
+                                    </li>
+
+                                {% endif %}
+
+
+                                <!-- Anterior -->
+                                {% if page_obj.has_previous %}
+
+                                    <li class="page-item">
+
+                                        <a
+                                            class="page-link"
+                                            href="?page={{ page_obj.previous_page_number }}&search={{ search|urlencode }}&categoria={{ categoria|urlencode }}&modelo={{ modelo|urlencode }}"
+                                        >
+                                            Anterior
+                                        </a>
+
+                                    </li>
+
+                                {% else %}
+
+                                    <li class="page-item disabled">
+
+                                        <span class="page-link">
+                                            Anterior
+                                        </span>
+
+                                    </li>
+
+                                {% endif %}
+
+
+                                <!-- Página actual -->
+                                <li class="page-item active">
+
+                                    <span class="page-link">
+
+                                        {{ page_obj.number }}
+
+                                    </span>
+
+                                </li>
+
+
+                                <!-- Siguiente -->
+                                {% if page_obj.has_next %}
+
+                                    <li class="page-item">
+
+                                        <a
+                                            class="page-link"
+                                            href="?page={{ page_obj.next_page_number }}&search={{ search|urlencode }}&categoria={{ categoria|urlencode }}&modelo={{ modelo|urlencode }}"
+                                        >
+                                            Siguiente
+                                        </a>
+
+                                    </li>
+
+                                {% else %}
+
+                                    <li class="page-item disabled">
+
+                                        <span class="page-link">
+                                            Siguiente
+                                        </span>
+
+                                    </li>
+
+                                {% endif %}
+
+
+                                <!-- Última -->
+                                {% if page_obj.has_next %}
+
+                                    <li class="page-item">
+
+                                        <a
+                                            class="page-link"
+                                            href="?page={{ page_obj.paginator.num_pages }}&search={{ search|urlencode }}&categoria={{ categoria|urlencode }}&modelo={{ modelo|urlencode }}"
+                                        >
+                                            »
+                                        </a>
+
+                                    </li>
+
+                                {% else %}
+
+                                    <li class="page-item disabled">
+
+                                        <span class="page-link">
+                                            »
+                                        </span>
+
+                                    </li>
+
+                                {% endif %}
+
+                            </ul>
+
+                        </nav>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

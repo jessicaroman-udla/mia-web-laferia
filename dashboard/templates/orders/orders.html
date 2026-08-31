@@ -1,0 +1,687 @@
+{% extends 'base/base.html' %}
+
+{% block page_title %}
+Órdenes de compra
+{% endblock %}
+
+{% block breadcrumb %}
+Órdenes de compra
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="small-box text-bg-primary">
+            <div class="inner">
+                <h3>{{ page_obj.paginator.count }}</h3>
+                <p>Órdenes encontradas</p>
+            </div>
+            <i class="bi bi-cart-check small-box-icon"></i>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="small-box text-bg-success">
+            <div class="inner">
+                <h3>{{ total_units|floatformat:0 }}</h3>
+                <p>Unidades a ordenar</p>
+            </div>
+            <i class="bi bi-box-seam small-box-icon"></i>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="small-box text-bg-warning">
+            <div class="inner">
+                <h3>$ {{ total_value|floatformat:2 }}</h3>
+                <p>Valor total filtrado</p>
+            </div>
+            <i class="bi bi-cash-stack small-box-icon"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-12">
+
+        <div class="card">
+
+            <!-- ================================================= -->
+            <!-- HEADER -->
+            <!-- ================================================= -->
+
+            <div class="card-header">
+
+                <div
+                    class="d-flex justify-content-between align-items-center flex-wrap gap-2"
+                >
+
+                    <h3 class="card-title mb-0">
+
+                        <i class="bi bi-cart-check me-2"></i>
+
+                        Órdenes de compra
+
+                    </h3>
+
+                    <span class="badge text-bg-primary">
+
+                        {{ page_obj.paginator.count }}
+                        registros
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- FILTROS -->
+            <!-- ================================================= -->
+
+            <div class="card-body border-bottom">
+
+                <form
+                    method="get"
+                    class="row g-3 align-items-end"
+                >
+
+                    <!-- Buscar -->
+
+                    <div class="col-lg-3 col-md-6">
+
+                        <label
+                            for="search"
+                            class="form-label"
+                        >
+                            Buscar producto
+                        </label>
+
+                        <input
+                            type="text"
+                            name="search"
+                            id="search"
+                            class="form-control"
+                            placeholder="Código o nombre..."
+                            value="{{ search }}"
+                        >
+
+                    </div>
+
+
+                    <!-- Almacén -->
+
+                    <div class="col-lg-2 col-md-6">
+
+                        <label
+                            for="almacen"
+                            class="form-label"
+                        >
+                            Almacén
+                        </label>
+
+                        <select
+                            name="almacen"
+                            id="almacen"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                Todos
+                            </option>
+
+                            {% for item in warehouses %}
+
+                                <option
+                                    value="{{ item }}"
+                                    {% if almacen == item %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ item }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Categoría -->
+
+                    <div class="col-lg-2 col-md-6">
+
+                        <label
+                            for="categoria"
+                            class="form-label"
+                        >
+                            Categoría
+                        </label>
+
+                        <select
+                            name="categoria"
+                            id="categoria"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                Todas
+                            </option>
+
+                            {% for item in categories %}
+
+                                <option
+                                    value="{{ item }}"
+                                    {% if categoria == item %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ item }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Modelo -->
+
+                    <div class="col-lg-2 col-md-6">
+
+                        <label
+                            for="modelo"
+                            class="form-label"
+                        >
+                            Modelo
+                        </label>
+
+                        <select
+                            name="modelo"
+                            id="modelo"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                Todos
+                            </option>
+
+                            {% for item in models %}
+
+                                <option
+                                    value="{{ item }}"
+                                    {% if modelo == item %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ item }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Botones -->
+
+                    <div class="col-lg-3 col-md-6">
+
+                        <div class="d-flex gap-2">
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary flex-fill"
+                            >
+
+                                <i class="bi bi-search me-1"></i>
+
+                                Buscar
+
+                            </button>
+
+                            <a
+                                href="{% url 'orders' %}"
+                                class="btn btn-outline-secondary"
+                                title="Limpiar filtros"
+                            >
+
+                                <i class="bi bi-arrow-clockwise"></i>
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- TABLA -->
+            <!-- ================================================= -->
+
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table
+                        class="table table-hover table-striped align-middle mb-0"
+                    >
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Código
+                                </th>
+
+                                <th>
+                                    Producto
+                                </th>
+
+                                <th class="text-center">
+                                    Almacén
+                                </th>
+
+                                <th class="text-center">
+                                    Categoría
+                                </th>
+
+                                <th class="text-end">
+                                    Stock
+                                </th>
+
+                                <th class="text-end">
+                                    Demanda
+                                </th>
+
+                                <th class="text-end">
+                                    Reorden
+                                </th>
+
+                                <th class="text-end">
+                                    Ordenar
+                                </th>
+
+                                <th class="text-end">
+                                    Costo unitario
+                                </th>
+
+                                <th class="text-end">
+                                    Valor orden
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for order in page_obj %}
+
+                                <tr>
+
+                                    <!-- Código -->
+
+                                    <td>
+
+                                        <a href="{% url 'product_detail' order.codigo_item %}" class="fw-semibold text-decoration-none">
+                                            {{ order.codigo_item }}
+                                        </a>
+
+                                    </td>
+
+
+                                    <!-- Producto -->
+
+                                    <td>
+
+                                        {{ order.item_name }}
+
+                                        <br>
+
+                                        <small class="text-muted">
+
+                                            {{ order.modelo_ganador }}
+
+                                        </small>
+
+                                    </td>
+
+
+                                    <!-- Almacén -->
+
+                                    <td class="text-center">
+
+                                        <span class="badge text-bg-secondary">
+
+                                            {{ order.almacen }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- Categoría -->
+
+                                    <td class="text-center">
+
+                                        {% if order.categoria == 'A' %}
+
+                                            <span
+                                                class="badge text-bg-success"
+                                            >
+                                                A
+                                            </span>
+
+                                        {% elif order.categoria == 'B' %}
+
+                                            <span
+                                                class="badge text-bg-warning"
+                                            >
+                                                B
+                                            </span>
+
+                                        {% else %}
+
+                                            <span
+                                                class="badge text-bg-secondary"
+                                            >
+
+                                                {{ order.categoria }}
+
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- Stock -->
+
+                                    <td class="text-end">
+
+                                        {{ order.disponible|floatformat:0 }}
+
+                                    </td>
+
+
+                                    <!-- Demanda -->
+
+                                    <td class="text-end">
+
+                                        {{ order.forecasted_demand|floatformat:0 }}
+
+                                    </td>
+
+
+                                    <!-- Punto de reorden -->
+
+                                    <td class="text-end">
+
+                                        {{ order.punto_reorden|floatformat:0 }}
+
+                                    </td>
+
+
+                                    <!-- Cantidad a ordenar -->
+
+                                    <td class="text-end">
+
+                                        <strong>
+
+                                            {{ order.cantidad_a_ordenar|floatformat:0 }}
+
+                                        </strong>
+
+                                    </td>
+
+
+                                    <!-- Costo -->
+
+                                    <td class="text-end">
+
+                                        $
+                                        {{ order.costo|floatformat:2 }}
+
+                                    </td>
+
+
+                                    <!-- Valor -->
+
+                                    <td class="text-end">
+
+                                        <strong>
+
+                                            $
+                                            {{ order.valor_orden|floatformat:2 }}
+
+                                        </strong>
+
+                                    </td>
+
+                                </tr>
+
+
+                            {% empty %}
+
+                                <tr>
+
+                                    <td
+                                        colspan="10"
+                                        class="text-center py-5"
+                                    >
+
+                                        <i
+                                            class="bi bi-cart-x"
+                                            style="font-size: 40px;"
+                                        ></i>
+
+                                        <p class="mt-2 mb-0">
+
+                                            No se encontraron órdenes de compra.
+
+                                        </p>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- PAGINACIÓN -->
+            <!-- ================================================= -->
+
+            {% if page_obj.paginator.num_pages > 1 %}
+
+                <div class="card-footer">
+
+                    <div
+                        class="d-flex justify-content-between align-items-center flex-wrap gap-2"
+                    >
+
+                        <small class="text-muted">
+
+                            Página
+
+                            {{ page_obj.number }}
+
+                            de
+
+                            {{ page_obj.paginator.num_pages }}
+
+                            ·
+
+                            {{ page_obj.paginator.count }}
+
+                            órdenes
+
+                        </small>
+
+
+                        <nav>
+
+                            <ul class="pagination mb-0">
+
+
+                                <!-- PRIMERA -->
+
+                                {% if page_obj.has_previous %}
+
+                                    <li class="page-item">
+
+                                        <a
+                                            class="page-link"
+                                            href="?page=1&search={{ search|urlencode }}&almacen={{ almacen|urlencode }}&categoria={{ categoria|urlencode }}&modelo={{ modelo|urlencode }}"
+                                        >
+                                            «
+                                        </a>
+
+                                    </li>
+
+                                {% else %}
+
+                                    <li class="page-item disabled">
+
+                                        <span class="page-link">
+                                            «
+                                        </span>
+
+                                    </li>
+
+                                {% endif %}
+
+
+                                <!-- ANTERIOR -->
+
+                                {% if page_obj.has_previous %}
+
+                                    <li class="page-item">
+
+                                        <a
+                                            class="page-link"
+                                            href="?page={{ page_obj.previous_page_number }}&search={{ search|urlencode }}&almacen={{ almacen|urlencode }}&categoria={{ categoria|urlencode }}&modelo={{ modelo|urlencode }}"
+                                        >
+                                            Anterior
+                                        </a>
+
+                                    </li>
+
+                                {% else %}
+
+                                    <li class="page-item disabled">
+
+                                        <span class="page-link">
+                                            Anterior
+                                        </span>
+
+                                    </li>
+
+                                {% endif %}
+
+
+                                <!-- ACTUAL -->
+
+                                <li class="page-item active">
+
+                                    <span class="page-link">
+
+                                        {{ page_obj.number }}
+
+                                    </span>
+
+                                </li>
+
+
+                                <!-- SIGUIENTE -->
+
+                                {% if page_obj.has_next %}
+
+                                    <li class="page-item">
+
+                                        <a
+                                            class="page-link"
+                                            href="?page={{ page_obj.next_page_number }}&search={{ search|urlencode }}&almacen={{ almacen|urlencode }}&categoria={{ categoria|urlencode }}&modelo={{ modelo|urlencode }}"
+                                        >
+                                            Siguiente
+                                        </a>
+
+                                    </li>
+
+                                {% else %}
+
+                                    <li class="page-item disabled">
+
+                                        <span class="page-link">
+                                            Siguiente
+                                        </span>
+
+                                    </li>
+
+                                {% endif %}
+
+
+                                <!-- ÚLTIMA -->
+
+                                {% if page_obj.has_next %}
+
+                                    <li class="page-item">
+
+                                        <a
+                                            class="page-link"
+                                            href="?page={{ page_obj.paginator.num_pages }}&search={{ search|urlencode }}&almacen={{ almacen|urlencode }}&categoria={{ categoria|urlencode }}&modelo={{ modelo|urlencode }}"
+                                        >
+                                            »
+                                        </a>
+
+                                    </li>
+
+                                {% else %}
+
+                                    <li class="page-item disabled">
+
+                                        <span class="page-link">
+                                            »
+                                        </span>
+
+                                    </li>
+
+                                {% endif %}
+
+                            </ul>
+
+                        </nav>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

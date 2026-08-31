@@ -1,0 +1,124 @@
+{% extends 'base/base.html' %}
+
+{% block page_title %}Detalle de producto{% endblock %}
+{% block breadcrumb %}{{ product_code }}{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div>
+            <span class="text-muted">{{ product_code }}</span>
+            <h2 class="mb-1">{{ product_name }}</h2>
+            {% if forecast %}
+                <span class="badge text-bg-info">{{ forecast.modelo_ganador }}</span>
+                <span class="badge text-bg-{% if forecast.categoria == 'A' %}success{% elif forecast.categoria == 'B' %}warning{% else %}secondary{% endif %}">
+                    Categoría {{ forecast.categoria }}
+                </span>
+            {% endif %}
+        </div>
+        <a href="{% url 'forecasts' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Volver a pronósticos
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-3 col-6">
+        <div class="small-box text-bg-primary">
+            <div class="inner"><h3>{{ forecast.demanda_total|default:0|floatformat:0 }}</h3><p>Demanda pronosticada</p></div>
+            <i class="bi bi-graph-up-arrow small-box-icon"></i>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box text-bg-success">
+            <div class="inner"><h3>{{ order_count }}</h3><p>Órdenes</p></div>
+            <i class="bi bi-cart-check small-box-icon"></i>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box text-bg-warning">
+            <div class="inner"><h3>{{ order_units|floatformat:0 }}</h3><p>Unidades a ordenar</p></div>
+            <i class="bi bi-box-seam small-box-icon"></i>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box text-bg-danger">
+            <div class="inner"><h3>$ {{ order_value|floatformat:2 }}</h3><p>Valor de órdenes</p></div>
+            <i class="bi bi-cash-stack small-box-icon"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header"><h3 class="card-title mb-0">Pronóstico semanal</h3></div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead><tr><th>Semana</th><th class="text-end">Pronóstico</th><th class="text-end">Venta real</th></tr></thead>
+                    <tbody>
+                        {% for item in weekly_forecast %}
+                            <tr>
+                                <td>Semana {{ item.week }}</td>
+                                <td class="text-end">{{ item.value|floatformat:0 }}</td>
+                                <td class="text-end"><span class="text-muted">Pendiente de datos</span></td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="3" class="text-center py-4 text-muted">No existe pronóstico semanal.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header"><h3 class="card-title mb-0">Órdenes por almacén</h3></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead><tr><th>Almacén</th><th class="text-end">Stock</th><th class="text-end">Ordenar</th><th class="text-end">Valor</th></tr></thead>
+                        <tbody>
+                            {% for order in orders %}
+                                <tr>
+                                    <td>{{ order.almacen }}</td>
+                                    <td class="text-end">{{ order.disponible|floatformat:0 }}</td>
+                                    <td class="text-end"><strong>{{ order.cantidad_a_ordenar|floatformat:0 }}</strong></td>
+                                    <td class="text-end">$ {{ order.valor_orden|floatformat:2 }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="4" class="text-center py-4 text-muted">Este producto no tiene órdenes.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Transferencias del producto</h3>
+        <span class="badge text-bg-primary">{{ transfer_count }} movimientos · {{ transfer_quantity|floatformat:0 }} unidades</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead><tr><th class="text-center">Origen</th><th class="text-center">Destino</th><th class="text-end">Cantidad</th></tr></thead>
+                <tbody>
+                    {% for transfer in transfers %}
+                        <tr>
+                            <td class="text-center"><span class="badge text-bg-secondary">{{ transfer.origen }}</span></td>
+                            <td class="text-center"><span class="badge text-bg-primary">{{ transfer.destino }}</span></td>
+                            <td class="text-end"><strong>{{ transfer.cantidad|floatformat:0 }}</strong></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="3" class="text-center py-4 text-muted">Este producto no tiene transferencias.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'base/base.html' %}
+
+{% block page_title %}Almacenes{% endblock %}
+{% block breadcrumb %}Almacenes{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3 col-6">
+        <div class="small-box text-bg-primary">
+            <div class="inner"><h3>{{ total_warehouses }}</h3><p>Almacenes</p></div>
+            <i class="bi bi-building small-box-icon"></i>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box text-bg-success">
+            <div class="inner"><h3>{{ total_orders }}</h3><p>Órdenes</p></div>
+            <i class="bi bi-cart-check small-box-icon"></i>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box text-bg-warning">
+            <div class="inner"><h3>{{ total_movements }}</h3><p>Transferencias</p></div>
+            <i class="bi bi-arrow-left-right small-box-icon"></i>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box text-bg-danger">
+            <div class="inner"><h3>$ {{ total_order_value|floatformat:2 }}</h3><p>Valor de órdenes</p></div>
+            <i class="bi bi-cash-stack small-box-icon"></i>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title mb-0"><i class="bi bi-building me-2"></i>Resumen por almacén</h3>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Almacén</th>
+                        <th class="text-end">Órdenes</th>
+                        <th class="text-end">Valor total</th>
+                        <th class="text-end">Salidas</th>
+                        <th class="text-end">Entradas</th>
+                        <th class="text-end">Movimientos</th>
+                        <th class="text-end">Balance unidades</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for warehouse in warehouses %}
+                        <tr>
+                            <td><strong>{{ warehouse.name }}</strong></td>
+                            <td class="text-end">{{ warehouse.order_count }}</td>
+                            <td class="text-end">$ {{ warehouse.order_value|floatformat:2 }}</td>
+                            <td class="text-end">
+                                <span class="badge text-bg-secondary">{{ warehouse.outgoing_count }}</span>
+                                <small class="text-muted d-block">{{ warehouse.outgoing_quantity|floatformat:0 }} uds.</small>
+                            </td>
+                            <td class="text-end">
+                                <span class="badge text-bg-primary">{{ warehouse.incoming_count }}</span>
+                                <small class="text-muted d-block">{{ warehouse.incoming_quantity|floatformat:0 }} uds.</small>
+                            </td>
+                            <td class="text-end">{{ warehouse.movement_count }}</td>
+                            <td class="text-end">
+                                {% if warehouse.net_quantity > 0 %}
+                                    <span class="text-success">+{{ warehouse.net_quantity|floatformat:0 }}</span>
+                                {% elif warehouse.net_quantity < 0 %}
+                                    <span class="text-danger">{{ warehouse.net_quantity|floatformat:0 }}</span>
+                                {% else %}
+                                    <span class="text-muted">0</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'orders' %}?almacen={{ warehouse.name|urlencode }}" class="btn btn-outline-success" title="Ver órdenes">
+                                        <i class="bi bi-cart-check"></i>
+                                    </a>
+                                    <a href="{% url 'transfers' %}?origen={{ warehouse.name|urlencode }}" class="btn btn-outline-secondary" title="Ver salidas">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                    </a>
+                                    <a href="{% url 'transfers' %}?destino={{ warehouse.name|urlencode }}" class="btn btn-outline-primary" title="Ver entradas">
+                                        <i class="bi bi-box-arrow-in-right"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="8" class="text-center py-5 text-muted">No existen almacenes registrados.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
