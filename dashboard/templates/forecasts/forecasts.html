@@ -225,10 +225,6 @@ Productos pronosticados
                                     Semanas
                                 </th>
 
-                                <th class="text-end">
-                                    MAPE
-                                </th>
-
                                 <th class="text-center">
                                     Estado
                                 </th>
@@ -318,25 +314,6 @@ Productos pronosticados
                                         {{ forecast.horizon_weeks }}
 
                                     </td>
-
-
-                                    <!-- MAPE -->
-                                    <td class="text-end">
-
-                                        {% if forecast.mape != None %}
-
-                                            {{ forecast.mape|floatformat:2 }}%
-
-                                        {% else %}
-
-                                            <span class="text-muted">
-                                                -
-                                            </span>
-
-                                        {% endif %}
-
-                                    </td>
-
 
                                     <!-- Estado -->
                                     <td class="text-center">
